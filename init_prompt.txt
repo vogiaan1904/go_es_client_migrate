@@ -1,0 +1,83 @@
+Here's a prompt to paste once you've copied .claude/ into the target repo:
+
+  Read-only calibration pass. Do NOT migrate anything, do NOT edit any .go
+  file,
+  do NOT trust the code in
+  .claude/skills/esclient-wrapper-migrate/references/esclient-wrapper-migrati
+  on.md
+  literally — it is illustrative and contains non-compiling examples. Your
+  job is
+  to study THIS repo and write a repo-specific facts file the skills will
+  read.
+
+  First read .claude/ES_MIGRATION_TOOLBOX.md and the three SKILL.md files so
+  you
+  know the design (compiler-gated, architecture-strict; esclient hides esdsl;
+  handlers import only esclient).
+
+  Then audit the actual source and gather:
+
+  1. The esclient wrapper: its import path, package name, and the FULL list
+  of
+     functions/types it currently exports (its public API surface today).
+  2. Versions: the olivere/elastic version and the go-elasticsearch version
+  in
+     go.mod (or note olivere-only if not yet added).
+  3. Inventory two file sets and list them:
+     a. files importing olivere/elastic directly (the migration targets), and
+     b. files that call the esclient wrapper.
+     Note any file that builds queries with raw elastic.New*Query while
+  executing
+     through esclient — those are the Phase 1 "mixed" files.
+  4. A frequency catalog of every distinct olivere construct actually used in
+  this
+     repo: query types (bool, range, term, terms, match, exists, ...),
+     aggregations, sorts, scroll/search-after, bulk, and any FieldValue
+  typing.
+  5. Build/test commands, the Go module path, the ES index names the code
+  targets,
+     and how the ES client is configured (env vars / auth) — so Phase 2
+  replay
+     knows ES_URL/auth and index names.
+
+  Produce two things:
+  - .claude/skills/esclient-wrapper-migrate/references/repo-profile.md
+    containing the concrete facts above (real package path, real current
+  esclient
+    API, real file lists, real build/test commands, real index/env names).
+  - A GAP LIST at the end of that file: olivere constructs used in the repo
+  that
+    the esclient wrapper does NOT yet cover and will need new wrappers in
+  Phase 1,
+    plus anything in the toolbox's assumptions that doesn't match reality
+  (e.g.
+    multiple wrapper packages, a differently-named wrapper, handlers
+  bypassing
+    esclient). Verify each esdsl signature you plan to mention by checking
+  the
+    installed go-elasticsearch, not the reference doc.
+
+  Stop after writing repo-profile.md. Show me the gap list and wait — do not
+  start migrating.
+
+  A few notes on why it's shaped this way:
+
+  - It writes facts, not edits. The skills stay generic and reusable; the
+  repo-specific truth lands in one repo-profile.md that the skills can
+  reference. That keeps the "source-agnostic" property intact while
+  specializing behavior.
+  - The gap list is the real payoff. Your reference doc covers a fixed set of
+  constructs; the only way to know whether this repo uses a function_score,
+  dis_max, search_after, scroll, or bulk path that the wrapper doesn't handle
+  yet is to count them in the actual code. That list becomes the Phase 1
+  work backlog.
+  - It re-asserts the two guardrails (don't trust the doc's code; verify
+  esdsl against the installed version) because a fresh agent in the target
+  repo won't have the context we built up here.
+  - It stops before migrating so you review the gap list and confirm scope
+  before any branch work.
+
+  Want me to bake this into the toolbox as a /es-calibrate command (and add
+  the repo-profile.md pointer to the skills' References sections so they
+  auto-load it)? That makes calibration a first-class step instead of a
+  prompt you have to keep around.
