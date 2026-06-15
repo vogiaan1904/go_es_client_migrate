@@ -1,0 +1,26 @@
+{
+  "display": {
+    "showTools": true,
+    "showAgents": true,
+    "showTodos": true,
+    "showDuration": true,
+    "showConfigCounts": true,
+    "showSessionName": true,
+    "customLine": "Your git history looks like a Claude conversation."
+  },
+  "colors": {
+    "model": "#ff9e64",
+    "project": "#808080",
+    "git": "#58855C",
+    "gitBranch": "#58855C",
+    "context": "#ff9e64",
+    "warning": "#e0af68",
+    "critical": "#f7768e",
+    "usage": "#ff9e64",
+    "usageWarning": "#f7768e",
+    "label": "#808080",
+    "custom": "#808080",
+    "barFilled": "▰",
+    "barEmpty": "▱"
+  }
+}
